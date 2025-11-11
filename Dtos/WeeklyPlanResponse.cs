@@ -8,6 +8,10 @@
 
         public int PlanCreated { get; set; }
 
+        public int PlanUpdated { get; set; }
+
         public int DistributionsCreated { get; set; }
+
+        public int DistributionsUpdated { get; set; }
     }
 }

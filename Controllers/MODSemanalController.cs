@@ -115,6 +115,106 @@ namespace MODSemanal.Controllers
             return distribution;
         }
 
+        [HttpPut]
+        [Route("UpdateWeeklyPlan/{weekNumber}")]
+        public async Task<ActionResult<WeeklyPlanResponse>> UpdateWeeklyPlan(int weekNumber, [FromBody] WeeklyPlanDto request)
+        {
+            try
+            {
+                if (weekNumber != request.WeekNumber)
+                {
+                    return BadRequest("El número de semana en la ruta no coincide con el del cuerpo de la solicitud");
+                }
+
+                var existingPlans = await _context.WeeklyPlan
+                    .Where(wp => wp.WeekNumber == request.WeekNumber)
+                    .Include(wp => wp.ExcessHoursDistribution)
+                        .ThenInclude(ehd => ehd.HoursDistributionDetail)
+                    .ToListAsync();
+
+                if (!existingPlans.Any())
+                    return NotFound($"No se encontraron planes para la semana {request.WeekNumber}");
+
+                if (request.CuData.ProductionVolume <= 0 || request.CuData.Mod <= 0 || request.CuData.ProductivityTarget <= 0)
+                    return BadRequest("Los valores para Cobre deben ser mayores a cero");
+
+                if (request.AlData.ProductionVolume <= 0 || request.AlData.Mod <= 0 || request.AlData.ProductivityTarget <= 0)
+                    return BadRequest("Los valores para Aluminio deben ser mayores a cero");
+
+                var planCu = existingPlans.FirstOrDefault(p => p.MaterialType == "CU");
+                if (planCu != null)
+                {
+                    UpdateWeeklyPlanData(planCu, request.CuData);
+                }
+
+                var planAl = existingPlans.FirstOrDefault(p => p.MaterialType == "AL");
+                if (planAl != null)
+                {
+                    UpdateWeeklyPlanData(planAl, request.AlData);
+                }
+
+                foreach (var plan in existingPlans)
+                {
+                    var distribution = plan.ExcessHoursDistribution.FirstOrDefault();
+                    if (distribution != null)
+                    {
+                        UpdateExcessDistribution(distribution, plan.ExcessPersonHours.Value, plan.Mod.Value);
+                    }
+                }
+
+                await _context.SaveChangesAsync();
+
+                return Ok(new WeeklyPlanResponse
+                {
+                    success = true,
+                    WeekNumber = request.WeekNumber,
+                    PlanCreated = 0,
+                    PlanUpdated = 2,
+                    DistributionsUpdated = 2
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = $"Error interno del servidor: {ex.Message}" });
+            }
+        }
+
+        private void UpdateWeeklyPlanData(WeeklyPlan plan, MaterialData data)
+        {
+            plan.ProductivityTarget = data.ProductivityTarget;
+            plan.ProductionVolume = data.ProductionVolume;
+            plan.Mod = data.Mod;
+            plan.HoursNeed = (int)(data.ProductionVolume / data.ProductivityTarget);
+            plan.HoursPersonAvailable = (int)(data.Mod * 46.5m);
+            plan.ExcessPersonHours = plan.HoursPersonAvailable - plan.HoursNeed;
+            plan.ExcessHoursPerPerson = Math.Round(plan.ExcessPersonHours.Value / (decimal)data.Mod, 2);
+        }
+
+        private void UpdateExcessDistribution(ExcessHoursDistribution distribution, int totalExcessHours, int mod)
+        {
+            distribution.TotalExcessHours = totalExcessHours;
+            distribution.Mod = mod;
+
+            var bankHours = (int)(mod * 6.5);
+            var vacationsHours = 0;
+            var trainingHours = 0;
+            var generalServicesHours = 0;
+
+            distribution.TotalAvailableHours = totalExcessHours - (bankHours + vacationsHours + trainingHours + generalServicesHours);
+
+            foreach(var detail in distribution.HoursDistributionDetail)
+            {
+                detail.HoursAssigned = detail.DistributionType switch
+                {
+                    "Banco de Horas" => bankHours,
+                    "Vacaciones" => vacationsHours,
+                    "Capacitación" => trainingHours,
+                    "Servicios Generales" => generalServicesHours,
+                    _ => detail.HoursAssigned
+                };
+            }
+        }
+
         [HttpGet]
         [Route("Getall")]
         public async Task<ActionResult<IEnumerable<WeeklyPlanSummary>>> GetAll()
