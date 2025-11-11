@@ -1,0 +1,369 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "MODSemanal",
+    "version": "1.0"
+  },
+  "paths": {
+    "/api/MODSemanal/CreateWeeklyPlan": {
+      "post": {
+        "tags": [
+          "MODSemanal"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WeeklyPlanDto"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WeeklyPlanDto"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WeeklyPlanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyPlanResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyPlanResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyPlanResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MODSemanal/Getall": {
+      "get": {
+        "tags": [
+          "MODSemanal"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeeklyPlanSummary"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeeklyPlanSummary"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/WeeklyPlanSummary"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/MODSemanal/GetByWeek/{weekNumber}": {
+      "get": {
+        "tags": [
+          "MODSemanal"
+        ],
+        "parameters": [
+          {
+            "name": "weekNumber",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyPlanFullResponse"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyPlanFullResponse"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WeeklyPlanFullResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DistributionDetailSummary": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "nullable": true
+          },
+          "hoursAssigned": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "DistributionSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalExcessHours": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "mod": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "totalAvailableHours": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "distributionDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DistributionDetailSummary"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "MaterialData": {
+        "type": "object",
+        "properties": {
+          "productivityTarget": {
+            "type": "number",
+            "format": "double"
+          },
+          "productionVolume": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mod": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WeeklyPlanDto": {
+        "type": "object",
+        "properties": {
+          "weekNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "cuData": {
+            "$ref": "#/components/schemas/MaterialData"
+          },
+          "alData": {
+            "$ref": "#/components/schemas/MaterialData"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WeeklyPlanFullResponse": {
+        "type": "object",
+        "properties": {
+          "weekNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "plans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/WeeklyPlanWithDistribution"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WeeklyPlanResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "weekNumber": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "planCreated": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "distributionsCreated": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "WeeklyPlanSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weekNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "materialType": {
+            "type": "string",
+            "nullable": true
+          },
+          "productivityTarget": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "productionVolume": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "hoursNeed": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "mod": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "hoursPersonAvailable": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "excessPersonHours": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "excessHoursPerPerson": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "WeeklyPlanWithDistribution": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "weekNumber": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "materialType": {
+            "type": "string",
+            "nullable": true
+          },
+          "productivityTarget": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "productionVolume": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "hoursNeed": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "mod": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "hoursPersonAvailable": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "excessPersonHours": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
+          },
+          "excessHoursPerPerson": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "distribution": {
+            "$ref": "#/components/schemas/DistributionSummary"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  }
+}

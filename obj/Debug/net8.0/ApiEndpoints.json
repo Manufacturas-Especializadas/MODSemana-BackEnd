@@ -1,0 +1,74 @@
+[
+  {
+    "ContainingType": "MODSemanal.Controllers.MODSemanalController",
+    "Method": "CreateWeeklyPlan",
+    "RelativePath": "api/MODSemanal/CreateWeeklyPlan",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "MODSemanal.Dtos.WeeklyPlanDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MODSemanal.Dtos.WeeklyPlanResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "MODSemanal.Controllers.MODSemanalController",
+    "Method": "GetAll",
+    "RelativePath": "api/MODSemanal/Getall",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.IEnumerable\u00601[[MODSemanal.Dtos.WeeklyPlanSummary, MODSemanal, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "MODSemanal.Controllers.MODSemanalController",
+    "Method": "GetFullByWeek",
+    "RelativePath": "api/MODSemanal/GetByWeek/{weekNumber}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "weekNumber",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "MODSemanal.Dtos.WeeklyPlanFullResponse",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  }
+]
