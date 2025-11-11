@@ -222,6 +222,7 @@ namespace MODSemanal.Controllers
             try
             {
                 var plans = await _context.WeeklyPlan
+                        .OrderByDescending(wp => wp.Id)
                         .Select(wp => new WeeklyPlanSummary
                         {
                             Id = wp.Id,
